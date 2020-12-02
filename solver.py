@@ -50,7 +50,3 @@ print('Number of valid passwords is: ',a1)
 
 a2 = sum([(x[1][0] == x[-1][0][eval(x[0][0])-1]) and (x[1][0] != x[-1][0][eval(x[0][1])-1]) for x in din])
 print('Number of valid passwords satisfying new policy: ', a2)
-
-din[1][-1][0][eval(din[1][0][0])-1]
-din[1][-1][0][eval(din[1][0][1])-1]
-din[1][1][0]
