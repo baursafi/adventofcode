@@ -60,6 +60,41 @@ In this example, traversing the map using this slope would cause you to encounte
 Starting at the top-left corner of your map and following a slope of 
 right 3 and down 1, how many trees would you encounter?   
 """
+import numpy as np
 
 with open('input.txt', 'r') as f:
     inp = f.readlines()
+
+
+inp = [[1  if i == '#' else 0 for i in line.replace('\n','')]for line in inp]
+
+inp = np.array(inp)
+
+# Part 1
+i = 0
+j = 0
+trees = 0
+while i < len(inp):
+    if j >= inp.shape[1]:
+        j -= inp.shape[1]
+    trees += inp[i,j]
+    i += 1
+    j += 3
+
+print(trees)
+
+#Part 2
+all_trees = 1
+for i_, j_ in [(1,1), (1,3), (1,5), (1,7), (2,1)]:
+    i = 0
+    j = 0
+    trees = 0
+    while i < len(inp):
+        if j >= inp.shape[1]:
+            j -= inp.shape[1]
+        trees += inp[i,j]
+        i += i_
+        j += j_
+    all_trees *= trees
+    print(trees)
+print(all_trees)
