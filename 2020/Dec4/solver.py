@@ -73,20 +73,28 @@ labels = {
     'cid':7  # (Country ID)
 }
 
+# Split the input by lines, remove "end of line = \n symbols"
+# Replace empty lines with double colon to designate a new record
 inp = ' '.join([line.replace('\n', '') if len(line) > 1 else '::' for line in inp]).split('::')
 inp = [x.strip().split(' ') for x in inp]
 
+# instantiate a new array with zeros
 arr = np.zeros((len(inp), 8))
 
+# for every record in the input assign value one if a value is found with a specific 
+# tag to a specific column in the array.
 for index, document in enumerate(inp):
     # print(index, document[:10])
     for record in document:
         # print(record, labels[record[:3]])
         arr[index,labels[record[:3]]] = 1
 
+# count all passports with full set of 8 tags
 full_passports = sum(arr.sum(axis = 1) == 8) 
+# count all passports where the only missing value is CID
 passports_wo_CID = sum((arr.sum(axis = 1) == 7) * (arr[:,7] == 0))
 
+# sum those two together, result is the total number of valid passports.
 total_valid = full_passports + passports_wo_CID
 
 print('Total Valid Passports', total_valid)
