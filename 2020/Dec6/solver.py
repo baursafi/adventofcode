@@ -113,14 +113,22 @@ In this example, the sum of these counts is 3 + 0 + 1 + 1 + 1 = 6.
 For each group, count the number of questions to which everyone answered "yes". 
 What is the sum of those counts?
 """
-group_answers = ' '.join(inp).split('::')
+# This time I will use Counter from collections 
+# A very useful class to count occurence of a each element in a list (string)
+from collections import Counter
 
-common_question_counter = []
-for group_answer in group_answers:
-    common_questions = set(' '.join(group_answer))
-    group_answer = group_answer.split(' ')
-    for personal_answer in group_answer:
-        common_questions = common_questions.intersection(set(personal_answer))
-        common_question_counter.append(len(common_questions))
+# rearrange the given input by the group answers, 
+# by replacing the empty lines with a special symbol (:: in this case)
+group_answers = [i.strip().replace(' ', '') for i in ' '.join(inp).split('::')]
 
-c
+# get how many people there are in each group
+members_in_group = [len(i.strip().split()) for i in ' '.join(inp).split('::')]
+
+# use Counter to get how many questions were answered by each group
+counts = [list(Counter(i).values()) for i in group_answers]
+
+# zip two lists and use list.count() to compare the number of members in each group 
+# and how many questions have the same occurence and then sum the output
+all_counts = sum([a.count(b) for a, b in zip(counts, members_in_group)])
+
+print('Count of questions answered by all members in each group is: ', all_counts)
