@@ -97,29 +97,45 @@ In this example, a single shiny gold bag must contain 126 other bags.
 
 How many individual bags are required inside your single shiny gold bag?
 """
-import re
 
-def bag_counter(color):
-    counter = 0
-    contains = [line.split('bags contain')[1].strip().replace('.','') for line in inp if color in line.split('bags contain')[0].strip() and 'no other' not in line.split('bags contain')[0].strip()][0]  
-    if 'no other bags' in contains:
-        return None, None 
-    contains = contains.split(',')
-    counter = [eval(bags.strip()[0]) for bags in contains]
-    bags_types = [' '.join(bags.strip().split()[1:-1]) for bags in contains]
-    return counter, bags_types
+import numpy as np
+from collections import defaultdict
+from tqdm import tqdm
 
-def rec_bc(initial_color, inp = inp):
-    counter = []
-    bags = []
-    if 
-    counter += bag_counter(initial_color)[0]
-    bags += bag_counter(initial_color)[1]
-    for bag in bag_counter(initial_color)[1]:
-        print(bag)
-        counter += bag_counter(bag)[0]
-        bags += bag_counter(bag)[1]
-    return counter, bags 
+# read the input into lines
+with open('input.txt', 'r') as f:
+    inp = f.readlines()
 
-bag_counter('shiny gold')
-rec_bc('shiny gold')
+# formalize a recursive function
+def text_rec(bag_type='shiny gold', inp=inp):
+    """returns the number of bags contained in the bag 
+        of the initial type. It's a recursive function that 
+        describes the first initial logic and returns 
+        an output that reuses the same function but on the other 
+        bag types found inside the previous bag
+
+    Args:
+        bag_type (str, optional): bag type. Defaults to 'shiny gold'.
+        inp ([type], optional): input is the list of strings. Defaults to inp.
+
+    Returns:
+        int: returns the resulting number of bags in bags
+    """
+    # find the line that contains the sought bag type
+    line = [line for line in inp if bag_type in line.split('bags contain')[0]][0]
+    # if line has "no other bags" in line the output defaults to zero
+    if 'no other' in line:
+        return 0
+    # otherwise, extract the multiplier for each type of bags found
+    bag_number = [eval(bag.split(' ')[0].strip()) for bag in line.split('bags contain')[1].strip().split(', ')]
+    # since the bags are in the original bag even if they don't have anything inside them
+    # would still add to the total count
+    total_bags = sum(bag_number)
+    # get the list of the bag types in the original bag 
+    bags = [' '.join(bag.split(' ')[1:3]).strip() for bag in line.split('bags contain')[1].strip().split(', ')]
+    print()
+    print(line)
+    return total_bags + sum([count*text_rec(bag) for count, bag in zip(bag_number, bags)])
+
+text_rec()
+
