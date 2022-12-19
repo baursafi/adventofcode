@@ -7,52 +7,35 @@ with open('input.txt') as file:
 
 data_in = [line.replace('\n', '') for line in data_in]
 
+def join_(x):
+    return ', '.join(list(x))
 
-from anytree import Node, RenderTree, AsciiStyle
-from tqdm import tqdm
-
-break_time = 0
-
-root = None
-for i in tqdm(data_in):
-    if "$ cd" in i and ".." not in i:
-        print(i)
-        folder_name = i.split(' ')[-1]
-        print("move to folder ", folder_name)
-        child = Node(name=folder_name, parent=root)
-        grandparent = root
-        root = folder_name
-        time.sleep(break_time)
+path = []
+files = {}
+df = pd.DataFrame()
+counter = 0
+for line in data_in:
+    if "$ cd" in line and ".." not in line:
+        path.append(line.split(" ")[-1])
+    if "$ cd .." in line:
+        path = path[:-1]
+    if "dir" in line or "ls" in line:
         continue
-    elif "$ ls" in i:
-        print(i)
-        print('List items')
-        continue
-    if "dir" in i:
-        print(i)
-        folder_name = i.split(" ")[-1]
-        print('folder', folder_name)
-        print('parent', root)
-        child = Node(name=folder_name, parent=root)
-        time.sleep(break_time)
-        continue
-    if len(re.findall("\d+",i)) > 0:
-        filesize = eval(re.findall("\d+",i)[0])
-        folder_name = i.split(" ")[-1]
-        child = Node(name=folder_name, parent=root, size = filesize) 
-        print('file size', filesize)
-        time.sleep(break_time)
-    if  i == "$ cd ..":
-        print(i)
-        print('go up one level')
-        root = grandparent
+    if len(re.findall("\d+", line)) > 0:
+        row = pd.DataFrame([path])
+        row['name'] = line.split(" ")[-1]
+        row['size'] = eval(re.findall("\d+", line)[0])
+        row['counter'] = counter
+        counter += 1
+        df = pd.concat([df, row],)
 
 
+folders = pd.DataFrame()
+for i in range(9):
+    columns = [i for i in range(i+1)]
+    gb = df.groupby(columns).agg({'size':'sum', 'name':[join_, 'count']}).reset_index()
+    folders = pd.concat([folders,gb[gb[('size', 'sum')] <= 100000]], ignore_index=True)
 
+folders.sort_values(by=[0,1,2,3,4,5,6,7,8], inplace = True)
 
-files = pd.DataFrame()
-i = 0
-while i < len(data_in):
-    line = data_in[i]
-    if '$ cd' in line and '..' not in line:
-        
+folders['size'].sum()
